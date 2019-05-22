@@ -1,0 +1,9 @@
+These scripts create systemd services to startup quickly on the raspberry pi
+
+Copy them to /etc/systemd/system/
+
+and then enable with:
+sudo systemctl enable recursionlooper
+sudo systemctl enable recursionlooperbutton
+sudo systemctl enable recursionlooperled
+sudo systemctl enable recursionlooperjackaudio

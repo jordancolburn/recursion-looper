@@ -1,0 +1,14 @@
+[Unit]
+Description=Starts RecursionLooper Button Reader
+DefaultDependencies=false            # Very important! Without this line, the service 
+                                     # would wait until networking.service
+                                     # has finished initialization. This could add 10 
+                                     # more seconds because of DHCP, IP attribution, etc.
+Requires=recursionlooper.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /home/pi/recursion-looper-chuck/button_input.py
+
+[Install]
+WantedBy=local-fs.target
