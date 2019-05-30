@@ -193,19 +193,19 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 		}
 
 		//stop playback instantly
-		else if (tapCount == 1 && loopState[loopNum] > 0) { 
+		else if (tapCount == 1 && loopState[loopNum] == 1) { 
 			<<<"stopped ", loopNum>>>; 
 			stopLoop(loopNum, loop);
 		} 
 		//stop playback after next quantization duration
-		else if (tapCount == 2 && loopState[loopNum] > 0) { 
+		else if (tapCount == 2 && loopState[loopNum] == 1) { 
 			waitUntilDownbeat();
 			<<<"stopped ", loopNum>>>; 
 			stopLoop(loopNum, loop);
 		} 
 	}
 	else{
-		if (tapCount == 1 loopState[loopNum] < 1){
+		if (tapCount == 1 && loopState[loopNum] < 1){
 			clearLoop(loopNum, loop);
 		}
 		else if (tapCount == 2){
@@ -242,7 +242,6 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 			//fade in audio
 			.1::second => alenvs[loopNum].duration;
 			alenvs[loopNum].keyOn();
-		}		
 	}
 	updateStatus();
 }
