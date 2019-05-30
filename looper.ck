@@ -22,7 +22,7 @@ class Loop {
   fun void stop() {
   }
 
-  fun void overdub() {
+  fun void toggleOverdub() {
   }
 
   fun void clear() {
@@ -146,33 +146,6 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 				stopOtherLoops(loopNum);
 			}
 		}
-
-		//toggle overdub
-		else if (tapCount == 1 && loopState[loopNum] >= 1) {
-			//turn overdub off
-			if (loopState[loopNum] == 2){ 
-				//fade out audio
-				.1::second => alenvs[loopNum].duration;
-				alenvs[loopNum].keyOff();
-				.1::second => now;
-				//turn off overdub
-				0 => loop.record;
-				1 => loopState[loopNum];
-				<<<"overdubbing off ", loopNum>>>;
-			}
-			//turn overdub on
-			else { 
-				loop.playPos() - audioLatency => loop.recPos;
-				1 => loop.record; 
-				2 => loopState[loopNum];
-				<<<"overdubbing ", loopNum>>>;
-				//fade in audio
-				.1::second => alenvs[loopNum].duration;
-				alenvs[loopNum].keyOn();
-			}		
-		}
-		
-
 		//play and stop recording 
 		else if (tapCount == 1 && (loopState[loopNum] == -2 || loopState[loopNum] == 0)) { 
 			if (baseDuration == 0::second){
@@ -219,7 +192,12 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 			<<<"looping ", loopNum>>>; 
 		}
 
-		//stop playback 
+		//stop playback instantly
+		else if (tapCount == 1 && loopState[loopNum] > 0) { 
+			<<<"stopped ", loopNum>>>; 
+			stopLoop(loopNum, loop);
+		} 
+		//stop playback after next quantization duration
 		else if (tapCount == 2 && loopState[loopNum] > 0) { 
 			waitUntilDownbeat();
 			<<<"stopped ", loopNum>>>; 
@@ -227,7 +205,7 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 		} 
 	}
 	else{
-		if (tapCount == 1){
+		if (tapCount == 1 loopState[loopNum] < 1){
 			clearLoop(loopNum, loop);
 		}
 		else if (tapCount == 2){
@@ -242,6 +220,29 @@ fun void ControlLoop( int tapCount, int hold, LiSa loop, int loopNum )
 			1::second => now;	
 			0 => buttonWait;
 		}
+	}
+
+	// toggle overdub off 
+	if (tapCount == 1 && hold == 0 &&loopState[loopNum] == 2) {
+		//fade out audio
+		.1::second => alenvs[loopNum].duration;
+		alenvs[loopNum].keyOff();
+		.1::second => now;
+		//turn off overdub
+		0 => loop.record;
+		1 => loopState[loopNum];
+		<<<"overdubbing off ", loopNum>>>;
+	}
+	//turn overdub on
+	else if (tapCount == 1 && hold == 1 && loopState[loopNum] == 1) { 
+			loop.playPos() - audioLatency => loop.recPos;
+			1 => loop.record; 
+			2 => loopState[loopNum];
+			<<<"overdubbing ", loopNum>>>;
+			//fade in audio
+			.1::second => alenvs[loopNum].duration;
+			alenvs[loopNum].keyOn();
+		}		
 	}
 	updateStatus();
 }
